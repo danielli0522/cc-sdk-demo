@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code 文档生成器 - HTML 仿真测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            min-height: 600px;
+        }
+
+        .input-panel {
+            padding: 30px;
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+        }
+
+        .output-panel {
+            padding: 30px;
+            background: white;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .output {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 400px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-y: auto;
+        }
+
+        .status {
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .status.info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #bbdefb;
+        }
+
+        .status.success {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+
+        .progress {
+            width: 100%;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #2196F3);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .tech-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .file-structure {
+            background: #f1f3f4;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 4px solid #2196F3;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-panel {
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+            }
+        }
+
+        .feature-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .feature-tag {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Claude Code 文档生成器</h1>
+            <p>智能项目分析 · 自动生成文档 · HTML 仿真测试</p>
+            <div class="feature-tags">
+                <span class="feature-tag">🔍 智能分析</span>
+                <span class="feature-tag">📋 多文档类型</span>
+                <span class="feature-tag">🎯 技术栈检测</span>
+                <span class="feature-tag">📊 架构图表</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="input-panel">
+                <h3 style="margin-bottom: 20px; color: #333;">📝 项目配置</h3>
+                
+                <div class="form-group">
+                    <label for="projectName">项目名称</label>
+                    <input type="text" id="projectName" placeholder="例如: my-awesome-project" value="cc-sdk-demo">
+                </div>
+
+                <div class="form-group">
+                    <label for="projectPath">项目路径</label>
+                    <input type="text" id="projectPath" placeholder="例如: /path/to/project" value="/Users/lshl124/Documents/daniel/git/code/aigc/cc-sdk-demo">
+                </div>
+
+                <div class="form-group">
+                    <label for="analysisDepth">分析深度</label>
+                    <select id="analysisDepth">
+                        <option value="basic">基础分析</option>
+                        <option value="detailed" selected>详细分析</option>
+                        <option value="deep">深度分析</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="documentType">文档类型</label>
+                    <select id="documentType">
+                        <option value="all" selected>所有类型</option>
+                        <option value="technical-overview">技术总览</option>
+                        <option value="complex-flow">复杂流程分析</option>
+                        <option value="problem-diagnosis">问题诊断方案</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="outputDir">输出目录</label>
+                    <input type="text" id="outputDir" placeholder="例如: ./docs" value="./docs">
+                </div>
+
+                <button class="btn" onclick="startAnalysis()" id="analyzeBtn">
+                    🚀 开始分析
+                </button>
+            </div>
+
+            <div class="output-panel">
+                <h3 style="margin-bottom: 20px; color: #333;">📊 分析结果</h3>
+                
+                <div id="status" class="status info">
+                    准备就绪，等待开始分析...
+                </div>
+
+                <div class="progress" id="progressContainer" style="display: none;">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+
+                <div class="output" id="output">
+欢迎使用 Claude Code 文档生成器仿真测试！
+
+本HTML页面可以模拟文档生成过程，无需连接实际的Claude CLI。
+
+🔧 功能特性：
+• 项目结构分析
+• 技术栈自动检测  
+• 复杂度评估
+• 文档模板生成
+• 架构图表生成
+
+📋 支持的文档类型：
+1. 技术总览 - 项目概述和架构分析
+2. 复杂流程分析 - 深入分析关键流程
+3. 问题诊断方案 - 问题识别和解决方案
+
+点击"开始分析"按钮开始仿真测试...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟项目分析器
+        class MockProjectAnalyzer {
+            constructor() {
+                this.fileExtensions = {
+                    '.ts': 'TypeScript',
+                    '.js': 'JavaScript',
+                    '.py': 'Python',
+                    '.java': 'Java',
+                    '.go': 'Go',
+                    '.rs': 'Rust',
+                    '.cpp': 'C++',
+                    '.c': 'C',
+                    '.php': 'PHP',
+                    '.rb': 'Ruby',
+                    '.cs': 'C#',
+                    '.swift': 'Swift',
+                    '.kt': 'Kotlin',
+                    '.scala': 'Scala'
+                };
+            }
+
+            async analyzeProject(projectName, projectPath, analysisDepth) {
+                const results = {
+                    projectName,
+                    projectPath,
+                    analysisDepth,
+                    techStack: this.detectTechStack(),
+                    projectStructure: this.generateProjectStructure(),
+                    complexity: this.assessComplexity(),
+                    recommendations: this.generateRecommendations()
+                };
+
+                return results;
+            }
+
+            detectTechStack() {
+                // 模拟技术栈检测
+                const commonStacks = [
+                    ['TypeScript', 'Node.js', 'npm'],
+                    ['JavaScript', 'React', 'Webpack'],
+                    ['Python', 'Django', 'pip'],
+                    ['Java', 'Spring Boot', 'Maven'],
+                    ['Go', 'Gin', 'Modules']
+                ];
+                return commonStacks[Math.floor(Math.random() * commonStacks.length)];
+            }
+
+            generateProjectStructure() {
+                return {
+                    totalFiles: Math.floor(Math.random() * 100) + 50,
+                    directories: Math.floor(Math.random() * 20) + 10,
+                    codeFiles: Math.floor(Math.random() * 80) + 40,
+                    testFiles: Math.floor(Math.random() * 30) + 10,
+                    configFiles: Math.floor(Math.random() * 10) + 5
+                };
+            }
+
+            assessComplexity() {
+                const complexityLevels = ['低', '中', '高'];
+                return {
+                    overall: complexityLevels[Math.floor(Math.random() * 3)],
+                    business: complexityLevels[Math.floor(Math.random() * 3)],
+                    technical: complexityLevels[Math.floor(Math.random() * 3)]
+                };
+            }
+
+            generateRecommendations() {
+                const recommendations = [
+                    '添加更多单元测试',
+                    '改进错误处理机制',
+                    '优化性能瓶颈',
+                    '增强文档覆盖率',
+                    '重构复杂模块',
+                    '提升代码可读性'
+                ];
+                return recommendations.slice(0, Math.floor(Math.random() * 3) + 2);
+            }
+
+            async generateDocument(type, results) {
+                const templates = {
+                    'technical-overview': this.generateTechnicalOverview(results),
+                    'complex-flow': this.generateComplexFlowAnalysis(results),
+                    'problem-diagnosis': this.generateProblemDiagnosis(results)
+                };
+                
+                await this.simulateDelay(1000);
+                return templates[type] || templates['technical-overview'];
+            }
+
+            generateTechnicalOverview(results) {
+                return `# ${results.projectName} - 技术总览
+
+## 项目概述
+- **项目名称**: ${results.projectName}
+- **分析深度**: ${results.analysisDepth}
+- **技术栈**: ${results.techStack.join(', ')}
+
+## 项目结构
+- 总文件数: ${results.projectStructure.totalFiles}
+- 目录数量: ${results.projectStructure.directories}
+- 代码文件: ${results.projectStructure.codeFiles}
+- 测试文件: ${results.projectStructure.testFiles}
+- 配置文件: ${results.projectStructure.configFiles}
+
+## 复杂度评估
+- 整体复杂度: ${results.complexity.overall}
+- 业务复杂度: ${results.complexity.business}
+- 技术复杂度: ${results.complexity.technical}
+
+## 架构视图
+
+\`\`\`mermaid
+graph TB
+    A[前端层] --> B[API层]
+    B --> C[业务逻辑层]
+    C --> D[数据访问层]
+    D --> E[数据库层]
+\`\`\`
+
+## 建议改进
+${results.recommendations.map(r => `- ${r}`).join('\n')}`;
+            }
+
+            generateComplexFlowAnalysis(results) {
+                return `# ${results.projectName} - 复杂流程分析
+
+## 高复杂度流程
+
+### 1. 用户认证流程
+\`\`\`mermaid
+sequenceDiagram
+    participant U as 用户
+    participant F as 前端
+    participant A as 认证服务
+    participant D as 数据库
+    
+    U->>F: 登录请求
+    F->>A: 验证凭据
+    A->>D: 查询用户信息
+    D-->>A: 返回用户数据
+    A-->>F: 返回JWT令牌
+    F-->>U: 登录成功
+\`\`\`
+
+### 2. 数据处理流程
+复杂度级别: ${results.complexity.technical}
+
+关键步骤：
+1. 数据验证
+2. 业务规则应用
+3. 持久化处理
+4. 缓存更新
+5. 事件通知
+
+## 中复杂度流程
+
+### 配置管理
+- 配置加载机制
+- 环境变量处理
+- 默认值合并
+
+技术栈: ${results.techStack.join(' + ')}`;
+            }
+
+            generateProblemDiagnosis(results) {
+                return `# ${results.projectName} - 问题诊断与解决方案
+
+## 常见问题识别
+
+### 1. 性能问题
+- **问题**: 响应时间过长
+- **原因**: 数据库查询未优化
+- **解决方案**: 添加索引，使用缓存
+
+### 2. 可维护性问题
+- **问题**: 代码耦合度高
+- **原因**: 缺乏模块化设计
+- **解决方案**: 重构，应用设计模式
+
+## 技术债务评估
+基于项目复杂度 (${results.complexity.overall}) 的分析结果。
+
+## 优化建议
+${results.recommendations.map((r, i) => `${i + 1}. ${r}`).join('\n')}
+
+## 最佳实践
+- 遵循SOLID原则
+- 增加测试覆盖率
+- 建立CI/CD流程
+- 定期代码审查
+
+项目文件统计:
+- 总计: ${results.projectStructure.totalFiles} 个文件
+- 需要重构: ${Math.floor(results.projectStructure.codeFiles * 0.3)} 个文件`;
+            }
+
+            async simulateDelay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+
+        // 主要功能函数
+        let analyzer = new MockProjectAnalyzer();
+
+        async function startAnalysis() {
+            const projectName = document.getElementById('projectName').value;
+            const projectPath = document.getElementById('projectPath').value;
+            const analysisDepth = document.getElementById('analysisDepth').value;
+            const documentType = document.getElementById('documentType').value;
+            const outputDir = document.getElementById('outputDir').value;
+
+            if (!projectName || !projectPath) {
+                showStatus('请填写项目名称和路径', 'error');
+                return;
+            }
+
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = '🔄 分析中...';
+
+            try {
+                await simulateAnalysis(projectName, projectPath, analysisDepth, documentType, outputDir);
+            } catch (error) {
+                showStatus(`分析失败: ${error.message}`, 'error');
+            } finally {
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = '🚀 开始分析';
+            }
+        }
+
+        async function simulateAnalysis(projectName, projectPath, analysisDepth, documentType, outputDir) {
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const output = document.getElementById('output');
+
+            // 显示进度条
+            progressContainer.style.display = 'block';
+            
+            // 步骤1: 项目结构分析
+            showStatus('📁 正在分析项目结构...', 'info');
+            updateProgress(20);
+            output.textContent = '🔍 扫描项目文件...\n';
+            await delay(1000);
+
+            // 步骤2: 技术栈检测
+            showStatus('🔧 检测技术栈...', 'info');
+            updateProgress(40);
+            output.textContent += '📊 分析技术栈和依赖关系...\n';
+            await delay(1000);
+
+            // 步骤3: 复杂度评估
+            showStatus('📈 评估项目复杂度...', 'info');
+            updateProgress(60);
+            output.textContent += '🧮 计算复杂度指标...\n';
+            await delay(1000);
+
+            // 步骤4: 分析项目
+            showStatus('🤖 执行AI分析...', 'info');
+            updateProgress(80);
+            const results = await analyzer.analyzeProject(projectName, projectPath, analysisDepth);
+            
+            output.textContent += '\n📋 分析结果:\n';
+            output.textContent += `项目名称: ${results.projectName}\n`;
+            output.textContent += `技术栈: ${results.techStack.join(', ')}\n`;
+            output.textContent += `总文件数: ${results.projectStructure.totalFiles}\n`;
+            output.textContent += `整体复杂度: ${results.complexity.overall}\n\n`;
+
+            // 步骤5: 生成文档
+            showStatus('📝 生成文档...', 'info');
+            updateProgress(90);
+            output.textContent += '正在生成文档内容...\n\n';
+
+            if (documentType === 'all') {
+                for (const type of ['technical-overview', 'complex-flow', 'problem-diagnosis']) {
+                    const doc = await analyzer.generateDocument(type, results);
+                    displayDocument(type, doc);
+                    await delay(500);
+                }
+            } else {
+                const doc = await analyzer.generateDocument(documentType, results);
+                displayDocument(documentType, doc);
+            }
+
+            // 完成
+            updateProgress(100);
+            showStatus('✅ 分析完成！', 'success');
+            output.textContent += `\n📁 文档已保存到: ${outputDir}\n`;
+            output.textContent += `🎉 分析完成，共生成 ${documentType === 'all' ? 3 : 1} 个文档文件。`;
+
+            setTimeout(() => {
+                progressContainer.style.display = 'none';
+                updateProgress(0);
+            }, 2000);
+        }
+
+        function displayDocument(type, content) {
+            const output = document.getElementById('output');
+            const typeNames = {
+                'technical-overview': '技术总览',
+                'complex-flow': '复杂流程分析', 
+                'problem-diagnosis': '问题诊断方案'
+            };
+            
+            output.textContent += `\n${'='.repeat(50)}\n`;
+            output.textContent += `📄 ${typeNames[type]} 文档生成完成\n`;
+            output.textContent += `${'='.repeat(50)}\n\n`;
+            output.textContent += content.substring(0, 300) + '...\n\n';
+        }
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        function updateProgress(percent) {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = percent + '%';
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            showStatus('🎯 HTML仿真测试环境已就绪', 'success');
+        });
+    </script>
+</body>
+</html>

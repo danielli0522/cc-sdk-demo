@@ -130,7 +130,7 @@ async function runBasicExample() {
         const response = mockResponses.basic;
         
         if (response.success) {
-            const result = `✅ 基础查询成功！\n\n` +
+            const result = `✅ 基础查询成功2！\n\n` +
                           `📝 响应内容：\n${response.data}\n\n` +
                           `⏰ 响应时间：${response.timestamp}\n\n` +
                           `🔧 使用的模型：claude-3-5-sonnet-20241022`;

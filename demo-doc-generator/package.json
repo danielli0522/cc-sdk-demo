@@ -1,0 +1,41 @@
+{
+  "name": "claude-code-doc-generator",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Documentation generator for code projects using Claude Code SDK",
+  "main": "dist/src/doc-generator-cli.js",
+  "bin": {
+    "claude-doc-gen": "dist/src/doc-generator-cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "npx tsx test/doc-generator-test.ts",
+    "test:simple": "npx tsx test/simple-validation.ts",
+    "demo": "npx tsx examples/doc-generator-demo.ts",
+    "start": "npx tsx src/doc-generator-cli.ts",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "claude",
+    "documentation",
+    "code-analysis",
+    "project-documentation",
+    "typescript"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "fs-extra": "^11.1.1",
+    "path": "^0.12.7",
+    "chalk": "^4.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/fs-extra": "^11.0.1",
+    "typescript": "^5.0.0",
+    "tsx": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

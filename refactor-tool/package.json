@@ -1,0 +1,37 @@
+{
+  "name": "claude-code-refactor",
+  "version": "1.0.0",
+  "description": "智能代码重构工具，基于 Claude Code SDK",
+  "type": "module",
+  "main": "dist/code-refactor.js",
+  "bin": {
+    "refactor": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "node --experimental-modules dist/test/test-runner.js",
+    "start": "node dist/cli.js"
+  },
+  "keywords": [
+    "refactor",
+    "code",
+    "claude",
+    "ai",
+    "typescript",
+    "javascript"
+  ],
+  "author": "Developer",
+  "license": "MIT",
+  "dependencies": {
+    "@instantlyeasy/claude-code-sdk-ts": "^0.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+
