@@ -5,10 +5,10 @@
     "buildCommand": "npm run build"
   },
   "deploy": {
-    "startCommand": "cd demo-real && npm install && npm install -g @anthropic-ai/claude-code --force && export PATH=$PATH:$(npm config get prefix)/bin:/usr/local/bin:/opt/nodejs/bin && which claude && npm start",
+    "startCommand": "cd demo-doc-generator && python3 -m http.server $PORT --directory .",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10,
-    "healthcheckPath": "/api/health",
+    "healthcheckPath": "/index.html",
     "healthcheckTimeout": 60,
     "healthcheckInterval": 30
   },
@@ -16,8 +16,7 @@
     "production": {
       "variables": {
         "NODE_ENV": "production",
-        "PORT": "$PORT",
-        "CLAUDE_API_KEY": "$CLAUDE_API_KEY"
+        "PORT": "$PORT"
       }
     }
   }
