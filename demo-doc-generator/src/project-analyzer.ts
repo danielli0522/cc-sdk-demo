@@ -5,7 +5,7 @@
  * 基于 Claude Code SDK 实现智能项目分析
  */
 
-import { claude } from '../../../dist/index.js';
+import { claude } from '../../dist/index.js';
 import { promises as fs } from 'fs';
 import { join, dirname, basename, extname } from 'path';
 import { createHash } from 'crypto';
