@@ -33,7 +33,19 @@ const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url);
   let pathname = `.${parsedUrl.pathname}`;
   
-  // Default to index.html for root path
+  // Health check endpoint
+  if (pathname === './health') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      service: 'Claude Code Doc Generator',
+      version: '1.0.0'
+    }));
+    return;
+  }
+  
+  // Default to index.html for root path (doc generator homepage)
   if (pathname === './') {
     pathname = './index.html';
   }
