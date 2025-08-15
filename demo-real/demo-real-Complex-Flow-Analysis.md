@@ -1,173 +1,177 @@
-# Complex Flow Analysis - demo-real
+# cc-sdk-demo 复杂流程深度分析
 
-## Email Validation Flow
+## 1. 流式查询处理流程
 
-### Flow Overview
-- **Business Goal**: Provide robust email validation with detailed error feedback
-- **Trigger Condition**: Function call to validateEmailDetailed()
-- **Core Concerns**: 
-  - Email format correctness
-  - Length constraints
-  - Special character handling
-- **Key Non-functional Points**:
-  - Input validation
-  - Detailed error reporting
-  - Performance (regex optimization)
+### 流程概述
+- **业务目标**: 提供实时的流式响应机制，支持长文本生成和实时反馈
+- **触发条件**: 客户端通过 `/api/streaming-query` 发起GET或POST请求
+- **潜在核心问题**: 连接稳定性、响应延迟、内存管理
+- **关键非功能点**: 性能、可靠性、实时性
 
-### Sequence Diagram
+### Mermaid时序图
 ```mermaid
 sequenceDiagram
-    participant C as Client
-    participant V as ValidateEmailDetailed
-    participant R as RegexValidator
+    participant Client
+    participant Server
+    participant SDKClient
+    participant Claude
+
+    Client->>Server: 发起流式查询请求
+    Server->>Client: 建立SSE连接
+    Server->>Client: 发送连接确认
     
-    C->>V: validateEmailDetailed(email)
-    V->>V: Check type
-    alt email not string
-        V-->>C: return {isValid: false, error: 'Email must be a string'}
+    loop 每30秒
+        Server->>Client: 发送心跳包
     end
-    V->>V: Check empty
-    alt email empty
-        V-->>C: return {isValid: false, error: 'Email cannot be empty'}
+    
+    Server->>SDKClient: 初始化SDK调用
+    SDKClient->>Claude: 发送查询请求
+    
+    loop 消息处理
+        Claude->>SDKClient: 返回消息
+        SDKClient->>Server: 处理消息内容
+        Server->>Client: 逐字符发送响应
     end
-    V->>V: Check length
-    alt length > 254
-        V-->>C: return {isValid: false, error: 'Email is too long'}
-    end
-    V->>V: Check @ symbol
-    alt no @ symbol
-        V-->>C: return {isValid: false, error: 'Email must contain @ symbol'}
-    end
-    V->>V: Check consecutive dots
-    alt has consecutive dots
-        V-->>C: return {isValid: false, error: 'Cannot contain consecutive dots'}
-    end
-    V->>V: Check dots around @
-    alt dots adjacent to @
-        V-->>C: return {isValid: false, error: 'Cannot have dots adjacent to @'}
-    end
-    V->>R: emailRegex.test(email)
-    alt regex test fails
-        V-->>C: return {isValid: false, error: 'Invalid email format'}
-    end
-    V-->>C: return {isValid: true, error: null}
+    
+    Server->>Client: 发送完成事件
+    Server->>Client: 关闭连接
 ```
 
-### Key Configuration Items
-- Email regex pattern: `/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/`
-- Maximum email length: 254 characters
+### 关键配置项
+- `allowedTools`: 允许使用的工具列表
+- `permissionMode`: 权限模式设置
+- `heartbeatInterval`: 心跳包间隔(30秒)
+- `streamDelay`: 字符流发送延迟(50ms)
 
-### Detailed Step Analysis
-1. **Type Validation**
-   - Checks if input is string type
-   - Returns early with error for non-string input
+### 详细步骤分析
+1. **连接建立**
+   - 设置SSE响应头
+   - 发送初始连接确认
+   - 启动心跳机制
 
-2. **Empty Check**
-   - Validates email string is not empty
-   - Returns specific error message for empty input
+2. **SDK调用处理**
+   - 验证必要参数
+   - 初始化SDK配置
+   - 收集响应消息
+   - 处理不同类型的消息(assistant/result)
 
-3. **Length Validation**
-   - Enforces 254 character limit
-   - Industry standard maximum length enforcement
+3. **流式响应发送**
+   - 清理响应文本
+   - 逐字符发送处理
+   - 添加延迟模拟真实效果
+   - 发送完成事件
 
-4. **Special Character Checks**
-   - Validates @ symbol presence
-   - Checks for invalid dot patterns
-   - Prevents consecutive dots
-   - Prevents dots adjacent to @ symbol
+4. **错误处理机制**
+   - 连接异常处理
+   - 心跳清理
+   - 详细错误信息返回
 
-5. **Regex Pattern Validation**
-   - Final comprehensive format check
-   - Validates local part and domain format
-   - Ensures valid TLD length
+## 2. 高级配置查询流程
 
-## Real-time Streaming Query Flow
+### 流程概述
+- **业务目标**: 提供灵活的查询配置和事件监听机制
+- **触发条件**: 通过 `/api/advanced-query` 发起POST请求
+- **潜在核心问题**: 配置验证、事件处理效率
+- **关键非功能点**: 可配置性、可监控性
 
-### Flow Overview
-- **Business Goal**: Provide real-time streaming responses for Claude Code SDK queries
-- **Trigger Condition**: HTTP POST/GET to /api/streaming-query
-- **Core Concerns**: 
-  - Real-time data streaming
-  - Connection management
-  - Error handling
-- **Key Non-functional Points**:
-  - Connection stability
-  - Response latency
-  - Resource management
-
-### Sequence Diagram
+### Mermaid时序图
 ```mermaid
 sequenceDiagram
-    participant C as Client
-    participant S as Server
-    participant SDK as Claude SDK
-    participant SSE as SSE Stream
+    participant Client
+    participant Server
+    participant QueryBuilder
+    participant EventHandlers
+    participant Claude
+
+    Client->>Server: 发送高级配置查询请求
+    Server->>QueryBuilder: 构建查询配置
     
-    C->>S: POST /api/streaming-query
-    activate S
-    S-->>C: SSE Connection Established
-    S->>S: Setup Heartbeat
-    
-    S->>SDK: Initialize SDK Query
-    activate SDK
-    
-    loop For each SDK message
-        SDK-->>S: Stream Message
-        S->>S: Process Message
-        alt assistant message
-            S->>S: Extract Text Content
-        else result message
-            S->>S: Append Final Result
-        end
-    end
-    deactivate SDK
-    
-    loop For each character
-        S->>SSE: Send Character
-        SSE-->>C: Stream Character
-        S->>S: Add Delay (50ms)
+    alt 启用消息监听
+        QueryBuilder->>EventHandlers: 注册消息监听器
     end
     
-    S->>SSE: Send Complete Event
-    SSE-->>C: Complete
-    deactivate S
+    alt 启用工具监听
+        QueryBuilder->>EventHandlers: 注册工具监听器
+    end
+    
+    QueryBuilder->>Claude: 执行查询
+    Claude->>EventHandlers: 触发事件
+    EventHandlers->>Server: 收集事件数据
+    Claude->>Server: 返回查询结果
+    Server->>Client: 返回完整响应
 ```
 
-### Key Configuration Items
-- Server Port: `process.env.PORT || 3002`
-- Streaming delay: 50ms per character
-- Heartbeat interval: 30,000ms (30 seconds)
-- Message types: 'assistant', 'result', 'error', 'heartbeat'
+### 关键配置项
+- `model`: Claude模型配置
+- `timeout`: 查询超时设置
+- `allowedTools`: 允许的工具列表
+- `enableMessageListener`: 消息监听开关
+- `enableToolListener`: 工具使用监听开关
 
-### Detailed Step Analysis
-1. **Connection Initialization**
-   - Sets SSE headers
-   - Establishes persistent connection
-   - Sends initial connection confirmation
-   - Starts heartbeat interval
+### 详细步骤分析
+1. **配置构建**
+   - 验证必要参数
+   - 应用高级配置选项
+   - 配置事件监听器
 
-2. **Query Configuration**
-   - Validates required prompt parameter
-   - Processes optional parameters:
-     - allowedTools
-     - permissionMode
-     - cwd
+2. **查询执行**
+   - 使用Fluent API构建查询
+   - 执行查询并获取原始结果
+   - 过滤处理响应内容
 
-3. **Claude SDK Integration**
-   - Initializes SDK with configuration
-   - Processes messages asynchronously
-   - Handles different message types:
-     - Assistant messages: extracts text content
-     - Result messages: appends final content
+3. **事件处理**
+   - 收集消息事件
+   - 记录工具使用事件
+   - 合并事件数据
 
-4. **Streaming Response**
-   - Character-by-character transmission
-   - Includes position and metadata
-   - Implements artificial delay for readability
-   - Maintains connection with heartbeat
+4. **结果返回**
+   - 格式化响应数据
+   - 包含事件信息
+   - 错误处理和状态返回
 
-5. **Error Handling & Cleanup**
-   - Catches and processes SDK errors
-   - Cleans up heartbeat interval
-   - Sends detailed error information
-   - Ensures proper connection closure
+## 3. CLI认证和健康检查流程
+
+### 流程概述
+- **业务目标**: 验证系统健康状态和CLI工具认证
+- **触发条件**: 通过 `/api/health` 和 `/api/auth-check` 发起请求
+- **潜在核心问题**: CLI工具可用性、认证状态维护
+- **关键非功能点**: 系统可靠性、安全性
+
+### Mermaid时序图
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+    participant CLI
+    
+    Client->>Server: 发起健康检查请求
+    Server->>CLI: 验证CLI版本
+    CLI-->>Server: 返回版本信息
+    
+    alt CLI已安装且认证
+        Server->>Client: 返回正常状态
+    else CLI未安装或未认证
+        Server->>Client: 返回警告状态
+    end
+```
+
+### 关键配置项
+- `cli_version`: CLI版本要求
+- `healthcheck_interval`: 健康检查间隔
+- `auth_timeout`: 认证超时设置
+
+### 详细步骤分析
+1. **健康状态检查**
+   - 验证服务器状态
+   - 检查环境配置
+   - 确认服务可用性
+
+2. **CLI工具验证**
+   - 检查CLI安装状态
+   - 验证版本兼容性
+   - 确认认证状态
+
+3. **状态报告生成**
+   - 聚合检查结果
+   - 格式化状态信息
+   - 生成详细报告
