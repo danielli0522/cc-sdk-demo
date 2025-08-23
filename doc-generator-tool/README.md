@@ -9,6 +9,8 @@
 - 🎯 **准确技术栈检测**: 基于文件扩展名和配置文件智能识别技术栈
 - 📊 **详细架构图**: 自动生成 Mermaid 架构图和序列图
 - 🔧 **灵活配置**: 支持自定义分析深度和输出格式
+- 🤖 **MCP服务**: 封装为Model Context Protocol服务，供其他智能体使用
+- 🔌 **多平台集成**: 支持Claude Code SDK、独立MCP客户端等多种使用方式
 
 ## 安装
 
@@ -82,6 +84,56 @@ interface AnalysisConfig {
 }
 ```
 
+## MCP服务
+
+### 快速启动
+```bash
+# 1. 构建项目
+npm run build
+
+# 2. 生成MCP配置（自动设置绝对路径）
+npm run mcp:setup
+
+# 3. 使用启动脚本
+./start-mcp.sh
+
+# 或手动启动
+npm run mcp:server    # 启动MCP服务器
+npm run mcp:client    # 运行客户端示例
+npm run mcp:demo      # 运行Claude SDK集成示例
+```
+
+### 集成到Claude Code SDK
+
+#### 方式1: 使用配置文件（推荐）
+```bash
+# 1. 生成配置
+npm run mcp:setup
+
+# 2. 将生成的 mcp-config.json 复制到Claude Code配置目录
+# macOS: ~/Library/Application Support/Claude/
+# Windows: %APPDATA%\Claude\
+# Linux: ~/.config/Claude/
+```
+
+#### 方式2: 代码集成
+```typescript
+import { claude } from '@instantlyeasy/claude-code-sdk-ts';
+
+const response = await claude()
+  .withMCP({
+    command: 'node',
+    args: ['/absolute/path/to/dist/src/mcp-server.js']
+  })
+  .allowTools('Read', 'Write', 'LS', 'Grep')
+  .query('分析项目并生成技术文档')
+  .asText();
+```
+
+详细文档请参考: 
+- [MCP集成指南](MCP_INTEGRATION.md)
+- [MCP部署指南](MCP_DEPLOYMENT_GUIDE.md)
+
 ## 测试
 
 ```bash
@@ -97,6 +149,9 @@ npm run test:simple
 ```bash
 # 运行演示示例
 npm run demo
+
+# 运行MCP示例
+npm run mcp:demo
 ```
 
 ## 项目结构

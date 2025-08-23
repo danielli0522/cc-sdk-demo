@@ -15,7 +15,11 @@
     "serve": "node server.js",
     "start": "node server.js",
     "dev": "npx tsx src/doc-generator-cli.ts",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "mcp:server": "node dist/src/mcp-server.js",
+    "mcp:client": "npx tsx src/mcp-client.ts",
+    "mcp:demo": "npx tsx examples/claude-sdk-integration.ts",
+    "mcp:setup": "node setup-mcp-config.js"
   },
   "keywords": [
     "claude",
@@ -29,7 +33,9 @@
   "dependencies": {
     "fs-extra": "^11.1.1",
     "path": "^0.12.7",
-    "chalk": "^4.1.2"
+    "chalk": "^4.1.2",
+    "@modelcontextprotocol/sdk": "^0.4.0",
+    "@instantlyeasy/claude-code-sdk-ts": "^0.3.3"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

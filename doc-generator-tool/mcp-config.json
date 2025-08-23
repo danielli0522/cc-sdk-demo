@@ -1,0 +1,29 @@
+{
+  "version": "1.0",
+  "name": "document-generator-mcp",
+  "description": "AI驱动的项目文档生成器MCP服务",
+  "mcpServers": {
+    "document-generator": {
+      "command": "node",
+      "args": [
+        "/Users/lshl124/Documents/daniel/git/code/aigc/cc-sdk-demo/doc-generator-tool/dist/src/mcp-server.js"
+      ],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  },
+  "tools": {
+    "allowed": [
+      "analyze_project",
+      "generate_technical_overview",
+      "generate_complex_flow_analysis",
+      "generate_problem_diagnosis",
+      "list_analyzed_projects",
+      "get_analysis_statistics"
+    ]
+  },
+  "permissions": {
+    "document-generator": "whitelist"
+  }
+}
